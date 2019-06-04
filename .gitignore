@@ -1,3 +1,10 @@
 /target
 **/*.rs.bk
 Cargo.lock
+hello_world/dist
+hello_world/node_modules
+hello_world/crate/bin
+hello_world/crate/pkg
+hello_world/crate/target
+hello_world/crate/wasm-pack.log
+hello_world/crate/Cargo.lock
