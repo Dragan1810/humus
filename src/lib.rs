@@ -1,12 +1,6 @@
+pub mod node;
+pub mod render;
+pub mod vdom;
 pub fn say_may_name() -> &'static str {
     "Humus!!!"
-}
-
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_numero_uno() {
-        assert_eq!(2 + 2, 4);
-    }
 }

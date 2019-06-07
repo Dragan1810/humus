@@ -5,3 +5,41 @@ authors = ["Dragan <dragan.novakovic@bridgewaterlabs.com>"]
 edition = "2018"
 
 [dependencies]
+wasm-bindgen = "0.2.45"
+js-sys = "0.3.22"
+log = { version = "0.4.6", optional = true }
+bitflags = "1.0.4"
+longest-increasing-subsequence = "0.1.0"
+serde = { version = "1.0.92", optional = true }
+
+[dependencies.web-sys]
+version = "0.3.22"
+features = [
+  "console",
+  "Document",
+  "Element",
+  "Event",
+  "Node",
+  "Window",
+  "Attr",
+  "EventTarget",
+  "HtmlElement",
+  "NamedNodeMap",
+  "NodeList",
+  "Text"
+]
+
+[dev-dependencies]
+console_log = "0.1.2"
+log = "0.4.6"
+wasm-bindgen-test = "0.2.45"
+
+[dev-dependencies.web-sys]
+version = "0.3.22"
+features = [
+  "Attr",
+  "EventTarget",
+  "HtmlElement",
+  "NamedNodeMap",
+  "NodeList",
+]
