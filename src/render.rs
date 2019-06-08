@@ -6,7 +6,7 @@ use web_sys::Element;
 pub fn h(node_type: &str, children: Vec<VirtualDomNode>) -> VirtualDomNode {
     VirtualDomNode::VirtualElementNode(VirtualElementNode {
         node_type: String::from(node_type),
-        children: children,
+        children,
     })
 }
 
