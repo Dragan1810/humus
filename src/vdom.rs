@@ -1,9 +1,11 @@
-use super::node::VirtualDomNode;
-use web_sys::Element;
+use super::{
+    node::{Element, VirtualDomNode},
+    render::update_element,
+};
 
 /// VirtualDom represents a virtual dom tree
 pub struct VirtualDom {
-    node: VirtualDomNode,
+    pub node: VirtualDomNode,
 }
 
 impl VirtualDom {
@@ -16,8 +18,8 @@ impl VirtualDom {
 
     /// Compares two virtual dom tree structures and updates the real DOM
     /// then stores the new dom tree for future comparisons
-    pub fn render(&mut self, _el: Element, new_node: VirtualDomNode) {
-        // diffing alg
+    pub fn render(&mut self, root: Element, new_node: VirtualDomNode) {
+        update_element(root, 0, &new_node, &self.node);
         self.node = new_node;
     }
 }

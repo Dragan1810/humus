@@ -1,53 +1,75 @@
-use super::node::{VirtualDomNode, VirtualElementNode, VirtualTextNode};
-use wasm_bindgen::prelude::*;
-use web_sys::Element;
+use super::node::{Element, VirtualDomNode, VirtualElementNode, VirtualTextNode};
 
+use wasm_bindgen::prelude::*;
 
 pub fn h(node_type: &str, children: Vec<VirtualDomNode>) -> VirtualDomNode {
-    VirtualDomNode::VirtualElementNode(VirtualElementNode {
+    VirtualDomNode::ElementNode(VirtualElementNode {
         node_type: String::from(node_type),
         children,
     })
 }
 
 pub fn t(text: &str) -> VirtualDomNode {
-    VirtualDomNode::VirtualTextNode(VirtualTextNode {
+    VirtualDomNode::TextNode(VirtualTextNode {
         text: String::from(text),
     })
 }
 
-pub fn create_element_from_node(node: &VirtualDomNode) -> Result<Element, JsValue> {
+pub fn create_element_from_node(node: &VirtualDomNode) -> Element {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("Document");
 
 
     match node {
-        VirtualDomNode::VirtualElementNode(vnode) => {
+        VirtualDomNode::ElementNode(vnode) => {
+            let mut el: Element = document
+                .create_element(&vnode.node_type)
+                .ok()
+                .unwrap()
+                .into();
 
-            let el = document.create_element(&vnode.node_type);
-
-            for _c in vnode.children.iter() {
-                // let child_element = create_element_from_node(c);
-                //el.append_child(child_element);
+            for c in vnode.children.iter() {
+                let mut child_element: Element = create_element_from_node(c); // vrati element
+                el.append_child(&mut child_element)
             }
 
             el
         }
-        VirtualDomNode::VirtualTextNode(text_node) => {
-            // let _text = document.create_text_node(&text_node.text);
-            let el = document.create_element("p")?;
-            el.set_inner_html(&text_node.text);
-            Ok(el)
+        VirtualDomNode::TextNode(text_node) => {
+            // let _text = document.create_text_node(&text_node.text); ??
+            let mut el: Element = document.create_element("p").ok().unwrap().into();
+            el.set_text_content(&text_node.text);
+            el
+
         }
         VirtualDomNode::Empty => {
-            let el = document.create_element("p")?;
-            el.set_inner_html("");
-            Ok(el)
+            let mut el: Element = document.create_element("div").ok().unwrap().into();
+            el.set_text_content("empty");
+            el
+
         }
     }
 
 }
 
+pub fn update_element(
+    mut parent: Element, // body stuff?
+    child_index: usize,
+    new_node: &VirtualDomNode,
+    old_node: &VirtualDomNode,
+) {
+    match old_node {
+        VirtualDomNode::Empty => {
+            let mut child = create_element_from_node(&new_node);
+            parent.append_child(&mut child)
+        }
+        _ => {
+            let mut child = create_element_from_node(&new_node);
+            parent.append_child(&mut child)
+        }
+
+    }
+}
 
 /*
 use crate::{Node, RenderContext};

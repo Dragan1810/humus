@@ -1,12 +1,26 @@
-// use web_sys::{Node, Window, Element, Text};
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::EventTarget;
+
+
+pub struct Node {
+    pub node: Option<web_sys::Node>,
+}
+
+impl From<web_sys::Node> for Node {
+    fn from(node: web_sys::Node) -> Node {
+        Node { node: Some(node) }
+    }
+}
 
 /// VirtualElementNode represents an html element
 pub struct VirtualElementNode {
     pub node_type: String,
-    pub children: Vec<VirtualDomNode>
+    pub children: Vec<VirtualDomNode>,
 }
 
 /// VirtualTextNode represents text that is mixed in with elements
+#[derive(Debug, Clone)]
 pub struct VirtualTextNode {
     pub text: String,
 }
@@ -14,44 +28,117 @@ pub struct VirtualTextNode {
 /// We use an enumeration to represent these two plus an empty DOM node to represent nothing
 pub enum VirtualDomNode {
     Empty,
-    VirtualElementNode(VirtualElementNode),
-    VirtualTextNode(VirtualTextNode),
+    ElementNode(VirtualElementNode),
+    TextNode(VirtualTextNode),
+}
+
+pub struct Element {
+    pub el: Option<web_sys::Element>,
+}
+
+impl From<web_sys::Element> for Element {
+    fn from(el: web_sys::Element) -> Element {
+        Element { el: Some(el) }
+    }
+}
+
+impl From<web_sys::EventTarget> for Element {
+    fn from(el: web_sys::EventTarget) -> Element {
+        let el = wasm_bindgen::JsCast::dyn_into::<web_sys::Element>(el);
+        Element { el: el.ok() }
+    }
+}
+
+impl From<Element> for Option<web_sys::Node> {
+    fn from(obj: Element) -> Option<web_sys::Node> {
+        if let Some(el) = obj.el {
+            Some(el.into())
+        } else {
+            None
+        }
+    }
+}
+
+impl From<Element> for Option<EventTarget> {
+    fn from(obj: Element) -> Option<EventTarget> {
+        if let Some(el) = obj.el {
+            Some(el.into())
+        } else {
+            None
+        }
+    }
 }
 
 
+impl Element {
+    pub fn create_element(tag: &str) -> Option<Element> {
+        if let Some(el) = web_sys::window()?.document()?.create_element(tag).ok() {
+            Some(el.into())
+        } else {
+            None
+        }
+    }
+
+    pub fn query_selector(selector: &str) -> Option<Element> {
+        let body: web_sys::Element = web_sys::window()?.document()?.body()?.into();
+        let el = body.query_selector(selector).ok()?;
+        Some(Element { el })
+    }
+
+    pub fn query_selector_from(&mut self, selector: &str) -> Option<Element> {
+        let mut found_el = None;
+        if let Some(el) = self.el.as_ref() {
+            found_el = Some(Element {
+                el: el.query_selector(selector).ok()?,
+            });
+        }
+        found_el
+    }
+
+    pub fn set_text_content(&mut self, value: &str) {
+        if let Some(el) = self.el.as_ref() {
+            if let Some(node) = &el.dyn_ref::<web_sys::Node>() {
+                node.set_text_content(Some(&value));
+            }
+        }
+    }
+
+    pub fn append_child(&mut self, child: &mut Element) {
+        if let Some(el) = self.el.as_ref() {
+            if let Some(node) = &el.dyn_ref::<web_sys::Node>() {
+                if let Some(ref child_el) = child.el {
+                    if let Some(child_node) = child_el.dyn_ref::<web_sys::Node>() {
+                        node.append_child(child_node).unwrap();
+                    }
+                }
+            }
+        }
+    }
+
+    /// Given another `Element` it will remove that child from the DOM from this element
+    /// Consumes `child` so it can't be used after it's removal.
+    pub fn remove_child(&mut self, mut child: Element) {
+        if let Some(child_el) = child.el.take() {
+            if let Some(el) = self.el.take() {
+                if let Some(el_node) = el.dyn_ref::<web_sys::Node>() {
+                    let child_node: web_sys::Node = child_el.into();
+                    el_node.remove_child(&child_node).unwrap();
+                }
+                self.el = Some(el);
+            }
+        }
+    }
+}
 
 /*
-use crate::{ RootRender };
-use bumpalo::Bump;
-use std::fmt;
-use std::iter;
-use std::mem;
-use std::u32;
 
-/// A virtual DOM node.
-#[derive(Debug, Clone)]
-pub struct Node<'a> {
-    pub(crate) kind: NodeKind<'a>,
-}
 
     /// A node is either a text node or an element.
     #[derive(Debug, Clone)]
     pub(crate) enum NodeKind<'a> {
-        /// A text node.
-        Text(TextNode<'a>),
 
         /// An element potentially with attributes and children.
         Element(&'a ElementNode<'a>),
-
-        // A node in the vdom's `CachedSet`. This allows us to avoid
-        // re-rendering and re-diffing subtrees.
-    }
-
-    /// Text nodes are just a string of text. They cannot have attributes or
-    /// children.
-    #[derive(Debug, Clone)]
-    pub(crate) struct TextNode<'a> {
-        pub text: &'a str,
     }
 
     /// Elements have a tag name, zero or more attributes, and zero or more
@@ -105,9 +192,6 @@ impl NodeKey {
         NodeKey(key)
     }
 }
-
-
-
 
 
 /// An attribute on a DOM node, such as `id="my-thing"` or
