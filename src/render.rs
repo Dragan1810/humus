@@ -1,7 +1,5 @@
 use super::node::{Element, VirtualDomNode, VirtualElementNode, VirtualTextNode};
 
-use wasm_bindgen::prelude::*;
-
 pub fn h(node_type: &str, children: Vec<VirtualDomNode>) -> VirtualDomNode {
     VirtualDomNode::ElementNode(VirtualElementNode {
         node_type: String::from(node_type),
@@ -54,7 +52,7 @@ pub fn create_element_from_node(node: &VirtualDomNode) -> Element {
 
 pub fn update_element(
     mut parent: Element, // body stuff?
-    child_index: usize,
+    _child_index: usize,
     new_node: &VirtualDomNode,
     old_node: &VirtualDomNode,
 ) {
