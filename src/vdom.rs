@@ -18,7 +18,7 @@ impl VirtualDom {
     /// Compares two virtual dom tree structures and updates the real DOM
     /// then stores the new dom tree for future comparisons
     pub fn render(&mut self, _el: Node, new_node: VirtualDomNode) {
-        // TODO: some magical comparisons that updates the contents of el
+        // diffing alg
         self.node = new_node;
     }
 }

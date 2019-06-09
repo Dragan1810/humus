@@ -25,25 +25,24 @@ pub fn create_element_from_node(node: &VirtualDomNode) -> Result<Element, JsValu
         VirtualDomNode::VirtualElementNode(vnode) => {
 
             let el = document.create_element(&vnode.node_type);
-            // Recursively create child nodes as well
 
-            /*
-            for c in vnode.children.iter() {
-                let child_element = create_element_from_node(c);
-                append_element(el,child_element);
+            for _c in vnode.children.iter() {
+                // let child_element = create_element_from_node(c);
+                //el.append_child(child_element);
             }
-            */
 
             el
         }
         VirtualDomNode::VirtualTextNode(text_node) => {
-            let _text = document.create_text_node(&text_node.text);
-            let el = document.create_element("p");
-            el
+            // let _text = document.create_text_node(&text_node.text);
+            let el = document.create_element("p")?;
+            el.set_inner_html(&text_node.text);
+            Ok(el)
         }
         VirtualDomNode::Empty => {
-            let el = document.create_element("p");
-            el
+            let el = document.create_element("p")?;
+            el.set_inner_html("");
+            Ok(el)
         }
     }
 
