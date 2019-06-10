@@ -18,7 +18,7 @@ impl VirtualDom {
 
     /// Compares two virtual dom tree structures and updates the real DOM
     /// then stores the new dom tree for future comparisons
-    pub fn render(&mut self, root: Element, new_node: VirtualDomNode) {
+    pub fn render(&mut self, root: &mut Element, new_node: VirtualDomNode) {
         update_element(root, 0, &new_node, &self.node);
         self.node = new_node;
     }

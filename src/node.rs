@@ -30,7 +30,7 @@ pub enum VirtualDomNode {
     ElementNode(VirtualElementNode),
     TextNode(VirtualTextNode),
 }
-
+#[derive(Debug, Clone)]
 pub struct Element {
     pub el: Option<web_sys::Element>,
 }

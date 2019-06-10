@@ -13,7 +13,7 @@ pub fn t(text: &str) -> VirtualDomNode {
     })
 }
 
-pub fn create_element_from_node(node: &VirtualDomNode) -> Element {
+pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> Option<Element> {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("Document");
 
@@ -27,23 +27,24 @@ pub fn create_element_from_node(node: &VirtualDomNode) -> Element {
                 .into();
 
             for c in vnode.children.iter() {
-                let mut child_element: Element = create_element_from_node(c); // vrati element
+                let mut child_element: Element = create_element_from_node(&mut el, c).unwrap(); // vrati element
                 el.append_child(&mut child_element)
             }
 
-            el
+            parent.append_child(&mut el);
+            Some(el)
         }
         VirtualDomNode::TextNode(text_node) => {
             // let _text = document.create_text_node(&text_node.text); ??
-            let mut el: Element = document.create_element("p").ok().unwrap().into();
-            el.set_text_content(&text_node.text);
-            el
+            // let mut el: Element = document.create_element("p").ok().unwrap().into();
+            parent.set_text_content(&text_node.text);
+            None
 
         }
         VirtualDomNode::Empty => {
-            let mut el: Element = document.create_element("div").ok().unwrap().into();
-            el.set_text_content("empty");
-            el
+            // let mut el: Element = document.create_element("div").ok().unwrap().into();
+            parent.set_text_content("empty");
+            None
 
         }
     }
@@ -51,22 +52,13 @@ pub fn create_element_from_node(node: &VirtualDomNode) -> Element {
 }
 
 pub fn update_element(
-    mut parent: Element, // body stuff?
+    parent: &mut Element, // body stuff?
     _child_index: usize,
     new_node: &VirtualDomNode,
-    old_node: &VirtualDomNode,
+    _old_node: &VirtualDomNode,
 ) {
-    match old_node {
-        VirtualDomNode::Empty => {
-            let mut child = create_element_from_node(&new_node);
-            parent.append_child(&mut child)
-        }
-        _ => {
-            let mut child = create_element_from_node(&new_node);
-            parent.append_child(&mut child)
-        }
-
-    }
+    let _child = create_element_from_node(parent, &new_node);
+    // parent.append_child(&mut child)
 }
 
 /*
