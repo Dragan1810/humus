@@ -39,8 +39,6 @@ pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> 
             Some(el)
         }
         VirtualDomNode::TextNode(text_node) => {
-            // let _text = document.create_text_node(&text_node.text); ??
-            // let mut el: Element = document.create_element("p").ok().unwrap().into();
             parent.set_text_content(&text_node.text);
             None
 
@@ -55,13 +53,13 @@ pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> 
 }
 
 pub fn update_element(
-    parent: &mut Element, // body stuff?
+    parent: &mut Element,
     _child_index: usize,
     new_node: &VirtualDomNode,
     _old_node: &VirtualDomNode,
 ) {
+    // super kul diffing alg
     let _child = create_element_from_node(parent, &new_node);
-    // parent.append_child(&mut child)
 }
 
 /*

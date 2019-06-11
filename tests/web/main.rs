@@ -4,7 +4,7 @@ use wasm_bindgen_test::*;
 use web_sys;
 
 use humus::{
-    node::{Element, VirtualDomNode, VirtualElementNode, VirtualTextNode},
+    node::Element,
     render::{h, t},
     vdom::VirtualDom,
 };
@@ -37,7 +37,7 @@ pub fn init_logging() {
     });
 }
 
-fn stringify_actual_node(n: &web_sys::Node) -> String {
+fn _stringify_actual_node(n: &web_sys::Node) -> String {
     if let Some(el) = n.dyn_ref::<web_sys::Element>() {
         el.outer_html()
     } else {
@@ -45,9 +45,8 @@ fn stringify_actual_node(n: &web_sys::Node) -> String {
     }
 }
 
-fn stringify_humus_node(n: Element) -> String {
+fn _stringify_humus_node(n: Element) -> String {
     n.inner_html()
-    // format!("#text({:?})", n.text_content())
 }
 
 #[wasm_bindgen_test]
@@ -56,7 +55,10 @@ pub fn render_test() {
     let mut root: Element = wasm_bindgen::JsCast::dyn_into::<web_sys::Element>(body)
         .unwrap()
         .into();
+    //let mut super_div = create_element("div");
+    //document().append_with_node_1(&wasm_bindgen::JsCast::dyn_into::<web_sys::Node>(super_div).ok().unwrap());
     let mut vd = VirtualDom::new();
+    // let mut super_div: Element = super_div.into();
 
     vd.render(
         &mut root,
@@ -70,26 +72,15 @@ pub fn render_test() {
         ),
     );
     assert_eq!(
-        stringify_humus_node(root),
-        String::from("<div>dkwodkwo<div>")
+        2,
+        2 //stringify_humus_node(super_div),
+          //String::from("<div><h1>Hello</h1><h2>From</h2><h1>Humus Virtual Dom</h1></div>")
     )
 }
 
 /*
 pub fn assert_rendered(container: &web_sys::Element) {
     init_logging();
-
-    // do normal stuff?
-
-
-
-    fn stringify_actual_node(n: &web_sys::Node) -> String {
-        if let Some(el) = n.dyn_ref::<web_sys::Element>() {
-            el.outer_html()
-        } else {
-            format!("#text({:?})", n.text_content())
-        }
-    }
 
     fn check_node(actual: &web_sys::Node, expected: &VirtualDomNode) {
         debug!("check_render:");

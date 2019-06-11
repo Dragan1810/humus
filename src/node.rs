@@ -14,6 +14,7 @@ impl From<web_sys::Node> for Node {
 }
 
 /// VirtualElementNode represents an html element
+//#[derive(Debug, Clone)]
 pub struct VirtualElementNode {
     pub node_type: String,
     pub children: Vec<VirtualDomNode>,
@@ -37,6 +38,7 @@ pub struct VirtualTextNode {
 }
 
 /// We use an enumeration to represent these two plus an empty DOM node to represent nothing
+//#[derive(Debug, Clone)]
 pub enum VirtualDomNode {
     Empty,
     ElementNode(VirtualElementNode),
@@ -159,19 +161,47 @@ impl Element {
     }
 }
 
+/// An attribute on a DOM node, such as `id="my-thing"` or
+/// `href="https://example.com"`.
+#[derive(Clone, Debug)]
+pub struct Attribute<'a> {
+    pub(crate) name: &'a str,
+    pub(crate) value: &'a str,
+}
+
+impl<'a> Attribute<'a> {
+    /// Get this attribute's name, such as `"id"` in `<div id="my-thing" />`.
+    #[inline]
+    pub fn name(&self) -> &'a str {
+        self.name
+    }
+
+    /// The attribute value, such as `"my-thing"` in `<div id="my-thing" />`.
+    #[inline]
+    pub fn value(&self) -> &'a str {
+        self.value
+    }
+
+    /// Certain attributes are considered "volatile" and can change via user
+    /// input that we can't see when diffing against the old virtual DOM. For
+    /// these attributes, we want to always re-set the attribute on the physical
+    /// DOM node, even if the old and new virtual DOM nodes have the same value.
+    #[inline]
+    pub(crate) fn is_volatile(&self) -> bool {
+        match self.name {
+            "value" | "checked" | "selected" => true,
+            _ => false,
+        }
+    }
+}
+
 /*
 
-
-    /// A node is either a text node or an element.
     #[derive(Debug, Clone)]
     pub(crate) enum NodeKind<'a> {
-
-        /// An element potentially with attributes and children.
         Element(&'a ElementNode<'a>),
     }
 
-    /// Elements have a tag name, zero or more attributes, and zero or more
-    /// children.
     #[derive(Debug, Clone)]
     pub(crate) struct ElementNode<'a> {
         pub key: NodeKey,
@@ -219,44 +249,6 @@ impl NodeKey {
     pub fn new(key: u32) -> Self {
         debug_assert_ne!(key, u32::MAX);
         NodeKey(key)
-    }
-}
-
-
-/// An attribute on a DOM node, such as `id="my-thing"` or
-/// `href="https://example.com"`.
-#[derive(Clone, Debug)]
-pub struct Attribute<'a> {
-    pub(crate) name: &'a str,
-    pub(crate) value: &'a str,
-}
-
-
-
-
-impl<'a> Attribute<'a> {
-    /// Get this attribute's name, such as `"id"` in `<div id="my-thing" />`.
-    #[inline]
-    pub fn name(&self) -> &'a str {
-        self.name
-    }
-
-    /// The attribute value, such as `"my-thing"` in `<div id="my-thing" />`.
-    #[inline]
-    pub fn value(&self) -> &'a str {
-        self.value
-    }
-
-    /// Certain attributes are considered "volatile" and can change via user
-    /// input that we can't see when diffing against the old virtual DOM. For
-    /// these attributes, we want to always re-set the attribute on the physical
-    /// DOM node, even if the old and new virtual DOM nodes have the same value.
-    #[inline]
-    pub(crate) fn is_volatile(&self) -> bool {
-        match self.name {
-            "value" | "checked" | "selected" => true,
-            _ => false,
-        }
     }
 }
 
