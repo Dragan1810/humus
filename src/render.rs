@@ -1,4 +1,5 @@
 use super::node::{Element, VirtualDomNode, VirtualElementNode, VirtualTextNode};
+use web_sys::console;
 
 pub fn h(node_type: &str, children: Vec<VirtualDomNode>) -> VirtualDomNode {
     VirtualDomNode::ElementNode(VirtualElementNode {
@@ -27,8 +28,11 @@ pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> 
                 .into();
 
             for c in vnode.children.iter() {
-                let mut child_element: Element = create_element_from_node(&mut el, c).unwrap(); // vrati element
-                el.append_child(&mut child_element)
+                let child_element: Option<Element> = create_element_from_node(&mut el, c);
+                match child_element {
+                    Some(mut x) => el.append_child(&mut x),
+                    None => console::log_1(&"Emprty stuff".into()),
+                } // vrati element
             }
 
             parent.append_child(&mut el);
@@ -42,10 +46,9 @@ pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> 
 
         }
         VirtualDomNode::Empty => {
-            // let mut el: Element = document.create_element("div").ok().unwrap().into();
-            parent.set_text_content("empty");
-            None
-
+            let mut el: Element = document.create_element("div").ok().unwrap().into();
+            el.set_text_content("empty");
+            Some(el)
         }
     }
 

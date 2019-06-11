@@ -1,3 +1,4 @@
+use std::fmt;
 use wasm_bindgen::JsCast;
 use web_sys::EventTarget;
 
@@ -16,6 +17,17 @@ impl From<web_sys::Node> for Node {
 pub struct VirtualElementNode {
     pub node_type: String,
     pub children: Vec<VirtualDomNode>,
+}
+
+impl fmt::Debug for VirtualElementNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Node_type: {} childrens: {}",
+            self.node_type,
+            self.children.len()
+        )
+    }
 }
 
 /// VirtualTextNode represents text that is mixed in with elements
@@ -112,6 +124,24 @@ impl Element {
                 }
             }
         }
+    }
+    /// Gets the text content of the `self.el` element
+    pub fn text_content(&mut self) -> Option<String> {
+        let mut text = None;
+        if let Some(el) = self.el.as_ref() {
+            if let Some(node) = &el.dyn_ref::<web_sys::Node>() {
+                text = node.text_content();
+            }
+        }
+        text
+    }
+
+    pub fn outer_html(self) -> String {
+        self.el.unwrap().outer_html()
+    }
+
+    pub fn inner_html(self) -> String {
+        self.el.unwrap().inner_html()
     }
 
     /// Given another `Element` it will remove that child from the DOM from this element
