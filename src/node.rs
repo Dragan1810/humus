@@ -1,4 +1,5 @@
 use std::fmt;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::EventTarget;
 
@@ -159,6 +160,111 @@ impl Element {
             }
         }
     }
+
+    pub fn add_event_listener<T>(&mut self, event_name: &str, handler: T)
+    where
+        T: 'static + FnMut(web_sys::Event),
+    {
+        let cb = Closure::wrap(Box::new(handler) as Box<dyn FnMut(_)>);
+        if let Some(el) = self.el.take() {
+            let el_et: EventTarget = el.into();
+            el_et
+                .add_event_listener_with_callback(event_name, cb.as_ref().unchecked_ref())
+                .unwrap();
+            cb.forget();
+
+            if let Ok(el) = el_et.dyn_into::<web_sys::Element>() {
+                self.el = Some(el);
+            }
+        }
+    }
+
+
+    /// Delegate an event to a selector
+    pub fn delegate<T>(
+        &mut self,
+        selector: &'static str,
+        event: &str,
+        mut handler: T,
+        use_capture: bool,
+    ) where
+        T: 'static + FnMut(web_sys::Event) -> (),
+    {
+        let el = match self.el.take() {
+            Some(e) => e,
+            None => return,
+        };
+        if let Some(dyn_el) = &el.dyn_ref::<EventTarget>() {
+            if let Some(window) = web_sys::window() {
+                if let Some(document) = window.document() {
+                    // TODO document selector to the target element
+                    let tg_el = document;
+
+                    let cb = Closure::wrap(Box::new(move |event: web_sys::Event| {
+                        if let Some(target_element) = event.target() {
+                            let dyn_target_el: Option<&web_sys::Node> =
+                                wasm_bindgen::JsCast::dyn_ref(&target_element);
+                            if let Some(target_element) = dyn_target_el {
+                                if let Ok(potential_elements) = tg_el.query_selector_all(selector) {
+                                    let mut has_match = false;
+                                    for i in 0..potential_elements.length() {
+                                        if let Some(el) = potential_elements.get(i) {
+                                            if target_element.is_equal_node(Some(&el)) {
+                                                has_match = true;
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    if has_match {
+                                        handler(event);
+                                    }
+                                }
+                            }
+                        }
+                    }) as Box<dyn FnMut(_)>);
+
+                    dyn_el
+                        .add_event_listener_with_callback_and_bool(
+                            event,
+                            cb.as_ref().unchecked_ref(),
+                            use_capture,
+                        )
+                        .unwrap();
+                    cb.forget(); // TODO cycle collect
+                }
+            }
+        }
+        self.el = Some(el);
+    }
+
+    /// Removes a class list item from the element
+    ///
+    /// ```
+    /// e.class_list_remove(String::from("clickable"));
+    /// // removes the class 'clickable' from e.el
+    /// ```
+    pub fn class_list_remove(&mut self, value: &str) {
+        if let Some(el) = self.el.take() {
+            el.class_list().remove_1(&value).unwrap();
+            self.el = Some(el);
+        }
+    }
+
+    pub fn class_list_add(&mut self, value: &str) {
+        if let Some(el) = self.el.take() {
+            el.class_list().add_1(&value).unwrap();
+            self.el = Some(el);
+        }
+    }
+
+     /// Sets the whole class value for `self.el`
+    pub fn set_class_name(&mut self, class_name: &str) {
+        if let Some(el) = self.el.take() {
+            el.set_class_name(&class_name);
+            self.el = Some(el);
+        }
+    }
 }
 
 /// An attribute on a DOM node, such as `id="my-thing"` or
@@ -187,7 +293,7 @@ impl<'a> Attribute<'a> {
     /// these attributes, we want to always re-set the attribute on the physical
     /// DOM node, even if the old and new virtual DOM nodes have the same value.
     #[inline]
-    pub(crate) fn is_volatile(&self) -> bool {
+    pub(crate) fn _is_volatile(&self) -> bool {
         match self.name {
             "value" | "checked" | "selected" => true,
             _ => false,

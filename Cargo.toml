@@ -25,6 +25,7 @@ features = [
   "EventTarget",
   "HtmlElement",
   "NamedNodeMap",
+  "DomTokenList",
   "NodeList",
   "Text"
 ]
