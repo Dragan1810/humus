@@ -5,7 +5,7 @@ use web_sys;
 
 use humus::{
     node::Element,
-    render::{h, t},
+    render::{attr, h, t},
     vdom::VirtualDom,
 };
 
@@ -64,11 +64,12 @@ pub fn render_test() {
         &mut root,
         h(
             "div",
-            vec![
-                h("h1", vec![t("Hello")]),
-                h("h2", vec![t("From")]),
-                h("h1", vec![t("Humus Virtual Dom")]),
-            ],
+            vec![h(
+                "h1",
+                vec![t("Humus Virtual Dom")],
+                vec![attr("name", "h1-name")],
+            )],
+            vec![attr("name", "glavni-div")],
         ),
     );
     assert_eq!(

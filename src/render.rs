@@ -1,11 +1,19 @@
-use super::node::{Element, VirtualDomNode, VirtualElementNode, VirtualTextNode};
+use super::node::{Attribute, Element, VirtualDomNode, VirtualElementNode, VirtualTextNode};
 use web_sys::console;
 
-pub fn h(node_type: &str, children: Vec<VirtualDomNode>) -> VirtualDomNode {
+pub fn h(node_type: &str, children: Vec<VirtualDomNode>, attr: Vec<Attribute>) -> VirtualDomNode {
     VirtualDomNode::ElementNode(VirtualElementNode {
         node_type: String::from(node_type),
         children,
+        attributes: attr,
     })
+}
+
+pub fn attr(attribute: &str, value: &str) -> Attribute {
+    Attribute {
+        name: String::from(attribute),
+        value: String::from(value),
+    }
 }
 
 pub fn t(text: &str) -> VirtualDomNode {
@@ -26,6 +34,11 @@ pub fn create_element_from_node(parent: &mut Element, node: &VirtualDomNode) -> 
                 .ok()
                 .unwrap()
                 .into();
+
+            for attr in vnode.attributes.iter() {
+                let _res = el.set_attribute(&attr.name, &attr.value);
+                console::log_1(&"Setting attribute".into());
+            }
 
             for c in vnode.children.iter() {
                 let child_element: Option<Element> = create_element_from_node(&mut el, c);

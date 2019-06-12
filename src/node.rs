@@ -19,6 +19,7 @@ impl From<web_sys::Node> for Node {
 pub struct VirtualElementNode {
     pub node_type: String,
     pub children: Vec<VirtualDomNode>,
+    pub attributes: Vec<Attribute>,
 }
 
 impl fmt::Debug for VirtualElementNode {
@@ -90,6 +91,14 @@ impl Element {
             Some(el.into())
         } else {
             None
+        }
+    }
+
+    pub fn set_attribute(&self, name: &str, value: &str) -> Result<(), JsValue> {
+        if let Some(el) = self.el.as_ref() {
+            el.set_attribute(name, value)
+        } else {
+            Err(JsValue::null())
         }
     }
 
@@ -258,7 +267,7 @@ impl Element {
         }
     }
 
-     /// Sets the whole class value for `self.el`
+    /// Sets the whole class value for `self.el`
     pub fn set_class_name(&mut self, class_name: &str) {
         if let Some(el) = self.el.take() {
             el.set_class_name(&class_name);
@@ -270,24 +279,24 @@ impl Element {
 /// An attribute on a DOM node, such as `id="my-thing"` or
 /// `href="https://example.com"`.
 #[derive(Clone, Debug)]
-pub struct Attribute<'a> {
-    pub(crate) name: &'a str,
-    pub(crate) value: &'a str,
+pub struct Attribute {
+    pub(crate) name: String,
+    pub(crate) value: String,
 }
 
-impl<'a> Attribute<'a> {
+impl Attribute {
     /// Get this attribute's name, such as `"id"` in `<div id="my-thing" />`.
     #[inline]
-    pub fn name(&self) -> &'a str {
-        self.name
+    pub fn name(&self) -> String {
+        self.name.clone()
     }
 
     /// The attribute value, such as `"my-thing"` in `<div id="my-thing" />`.
     #[inline]
-    pub fn value(&self) -> &'a str {
-        self.value
+    pub fn value(&self) -> String {
+        self.value.clone()
     }
-
+    /*
     /// Certain attributes are considered "volatile" and can change via user
     /// input that we can't see when diffing against the old virtual DOM. For
     /// these attributes, we want to always re-set the attribute on the physical
@@ -299,6 +308,7 @@ impl<'a> Attribute<'a> {
             _ => false,
         }
     }
+    */
 }
 
 /*
