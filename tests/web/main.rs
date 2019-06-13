@@ -67,7 +67,7 @@ pub fn render_test() {
             vec![h(
                 "h1",
                 vec![t("Humus Virtual Dom")],
-                vec![attr("name", "h1-name")],
+                vec![attr("name", "h1-name"), attr("style", "color:red")],
             )],
             vec![attr("name", "glavni-div")],
         ),
