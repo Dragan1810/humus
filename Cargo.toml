@@ -4,7 +4,12 @@ version = "0.1.0"
 authors = ["Dragan <dragan.novakovic@bridgewaterlabs.com>"]
 edition = "2018"
 
+
 [dependencies]
+proc-macro-nested = "0.1.2"
+proc-macro-hack = "0.5.4"
+htmlescape = "0.3.1"
+jsx_macro = { version = "0.1.0", path = "./jsx_macro" }
 wasm-bindgen = "0.2.45"
 js-sys = "0.3.22"
 log = { version = "0.4.6", optional = true }

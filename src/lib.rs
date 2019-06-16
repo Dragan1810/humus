@@ -2,6 +2,7 @@ pub mod node;
 pub mod render;
 pub mod vdom;
 
-pub fn say_may_name() -> &'static str {
-    "Humus!!!"
-}
+use proc_macro_hack::proc_macro_hack;
+
+#[proc_macro_hack(support_nested)]
+pub use jsx_macro::html;
