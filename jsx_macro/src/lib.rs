@@ -7,7 +7,6 @@ extern crate proc_macro;
 
 use proc_macro2::{Literal, TokenStream, TokenTree};
 use quote::quote;
-
 use snax::{
     SnaxAttribute,
     //  SnaxFragment,
@@ -71,14 +70,14 @@ fn emit_self_closing_tag(tag: &SnaxSelfClosingTag) -> TokenStream {
     let tag_name_literal = Literal::string(&tag.name.to_string());
 
     quote!({
-        let mut __snax_tag = ::ritz::HtmlSelfClosingTag {
+        let mut __snax_tag = ::humus::HtmlSelfClosingTag {
             name: ::std::borrow::Cow::Borrowed(#tag_name_literal),
             attributes: ::std::collections::HashMap::with_capacity(#attributes_len_literal),
         };
 
         #attribute_insertions
 
-        ::ritz::HtmlContent::SelfClosingTag(__snax_tag)
+        ::humus::HtmlContent::SelfClosingTag(__snax_tag)
     })
 }
 
@@ -91,7 +90,7 @@ fn emit_tag(tag: &SnaxTag) -> TokenStream {
     let tag_name_literal = Literal::string(&tag.name.to_string());
 
     quote!({
-        let mut __snax_tag = ::ritz::HtmlTag {
+        let mut __snax_tag = ::humus::HtmlTag {
             name: ::std::borrow::Cow::Borrowed(#tag_name_literal),
             attributes: ::std::collections::HashMap::with_capacity(#attributes_len_literal),
             children: ::std::vec::Vec::with_capacity(#children_len_literal),
@@ -100,30 +99,13 @@ fn emit_tag(tag: &SnaxTag) -> TokenStream {
         #attribute_insertions
         #child_insertions
 
-        ::ritz::HtmlContent::Tag(__snax_tag)
-    })
-}
-/*
-fn _emit_fragment(fragment: &SnaxFragment) -> TokenStream {
-    let child_insertions = emit_children(&fragment.children);
-
-    let children_len_literal = Literal::usize_unsuffixed(fragment.children.len());
-
-    quote!({
-        let mut __snax_tag = ::ritz::Fragment {
-            children: ::std::vec::Vec::with_capacity(#children_len_literal),
-        };
-
-        #child_insertions
-
-        ::ritz::HtmlContent::Fragment(__snax_tag)
+        ::humus::HtmlContent::Tag(__snax_tag)
     })
 }
 
-*/
 
 fn emit_content(tt: &TokenTree) -> TokenStream {
     quote!(
-        ::ritz::HtmlContent::from(#tt)
+        ::humus::render::t(#tt as &str)
     )
 }
