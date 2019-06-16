@@ -7,6 +7,7 @@ use humus::{
     node::Element,
     render::{attr, h, t},
     vdom::VirtualDom,
+    html
 };
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -55,10 +56,14 @@ pub fn render_test() {
     let mut root: Element = wasm_bindgen::JsCast::dyn_into::<web_sys::Element>(body)
         .unwrap()
         .into();
-    //let mut super_div = create_element("div");
-    //document().append_with_node_1(&wasm_bindgen::JsCast::dyn_into::<web_sys::Node>(super_div).ok().unwrap());
+  
     let mut vd = VirtualDom::new();
-    // let mut super_div: Element = super_div.into();
+
+    let domTree = html!(
+        <div name="h1-name">
+            <h1 name="h1-name" style="color:red">"Humus Virtual Dom"</h1>
+        </div>
+    );
 
     vd.render(
         &mut root,
