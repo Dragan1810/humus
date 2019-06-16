@@ -39,13 +39,9 @@ fn emit_attributes(attributes: &[SnaxAttribute]) -> TokenStream {
     attributes
         .iter()
         .map(|attribute| match attribute {
-            SnaxAttribute::Simple { name, value } => {
-                let name_literal = Literal::string(&name.to_string());
-
-                quote!(
-                    __snax_tag.set_attribute(#name_literal, #value);
-                )
-            }
+            SnaxAttribute::Simple { name, value } => quote!(
+                ::humus::render::attr(#name, #value);
+            ),
         })
         .collect()
 }
@@ -85,16 +81,11 @@ fn emit_tag(tag: &SnaxTag) -> TokenStream {
     let attribute_insertions = emit_attributes(&tag.attributes);
     let child_insertions = emit_children(&tag.children);
 
-    let attributes_len_literal = Literal::usize_unsuffixed(tag.attributes.len());
     let children_len_literal = Literal::usize_unsuffixed(tag.children.len());
     let tag_name_literal = Literal::string(&tag.name.to_string());
 
     quote!({
-        let mut __snax_tag = ::humus::HtmlTag {
-            name: ::std::borrow::Cow::Borrowed(#tag_name_literal),
-            attributes: ::std::collections::HashMap::with_capacity(#attributes_len_literal),
-            children: ::std::vec::Vec::with_capacity(#children_len_literal),
-        };
+        let mut __snax_tag = ::humus::render::h(#tag_name_literal, ::std::vec::Vec::with_capacity(#children_len_literal), #attribute_insertions);
 
         #attribute_insertions
         #child_insertions
@@ -106,6 +97,6 @@ fn emit_tag(tag: &SnaxTag) -> TokenStream {
 
 fn emit_content(tt: &TokenTree) -> TokenStream {
     quote!(
-        ::humus::render::t(#tt as &str)
+        ::humus::render::t(#tt)
     )
 }
