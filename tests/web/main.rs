@@ -59,11 +59,26 @@ pub fn render_test() {
   
     let mut vd = VirtualDom::new();
 
-    let domTree = html!(
+    
+    let page = html! {
         <div name="h1-name">
             <h1 name="h1-name" style="color:red">"Humus Virtual Dom"</h1>
         </div>
-    );
+    };
+
+    fn App() {
+        h(
+            "div",
+            vec![h(
+                "h1",
+                vec![t("Humus Virtual Dom")],
+                vec![attr("name", "h1-name"), attr("style", "color:red")],
+            )],
+            vec![attr("name", "glavni-div")],
+        )
+    };
+
+    
 
     vd.render(
         &mut root,
@@ -81,7 +96,7 @@ pub fn render_test() {
         2,
         2 //stringify_humus_node(super_div),
           //String::from("<div><h1>Hello</h1><h2>From</h2><h1>Humus Virtual Dom</h1></div>")
-    )
+    );
 }
 
 /*
