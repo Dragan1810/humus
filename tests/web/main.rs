@@ -4,10 +4,11 @@ use wasm_bindgen_test::*;
 use web_sys;
 
 use humus::{
+    html,
     node::Element,
-    render::{attr, h, t},
     vdom::VirtualDom,
-    html
+    render::{h,t, attr}
+
 };
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -50,35 +51,40 @@ fn _stringify_humus_node(n: Element) -> String {
     n.inner_html()
 }
 
+#[test]
+pub fn test_jsx() {
+    // ignore html! errors!!!
+    html!{
+        <div name="main">
+            <h1 style="color:red">"Humus Virtual Dom"</h1>
+        </div>
+    };
+    eprint!("{:?}", x);
+    assert_eq!(2, 3)
+}
+
 #[wasm_bindgen_test]
 pub fn render_test() {
     let body = document().body().unwrap();
     let mut root: Element = wasm_bindgen::JsCast::dyn_into::<web_sys::Element>(body)
         .unwrap()
         .into();
-  
+
     let mut vd = VirtualDom::new();
 
-    
-    let page = html! {
-        <div name="h1-name">
-            <h1 name="h1-name" style="color:red">"Humus Virtual Dom"</h1>
-        </div>
-    };
-
-    fn App() {
+   
+    fn _App() {
         h(
             "div",
             vec![h(
                 "h1",
                 vec![t("Humus Virtual Dom")],
-                vec![attr("name", "h1-name"), attr("style", "color:red")],
+                vec![attr("style", "color:red")],
             )],
-            vec![attr("name", "glavni-div")],
-        )
+            vec![],
+        );
     };
 
-    
 
     vd.render(
         &mut root,
