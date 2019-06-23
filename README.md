@@ -1,5 +1,9 @@
 # Humus Simple Virtual DOM in Rust + WASM
 
+* ~~Changed JS glue code for wasm-bindgen~~
+* ~~Added Attribures~~
+* Add JSX support
+
 This project is my attempt as simply implementing a very basic virtual DOM from scratch. There's a few interesting challenges in talking with javascript as well as the algorithm itself.
 
 Let's talk first about the challenges of WASM interacting with DOM. Since web assembly doesn't have any API for interacting with the DOM, we must interact with the DOM through Javascript. There is however an additional difficulty in that WASM-JS communication can only be done through simple number types (integers and floats). This brings the first question of how do we pass a string from WASM to javascript?
