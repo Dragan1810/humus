@@ -46,8 +46,6 @@ type DomNode = i32;
 
 # Virtual DOM
 
-There is a great (but incomplete article) https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060 that describe the process of creating a Virtual DOM from scratch.
-
 The important thing to remember is that we are trying to do as minimal DOM operations as possible. Manipulating the DOM is incredibly expensive, so if we can find any way of avoiding interactions with it the better.  How virtual DOM accomplishes this is by representing our DOM as a tree of nodes. Then each time we render, we compare the tree of nodes we currently have to the new tree of nodes, and we can determine what real DOM needs to be created,removed, replaced, or modified.
 
 In this example i'm making a pretty massive simplification: **this is a virtual DOM for elements with NO attributes or event handlers**
