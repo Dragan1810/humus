@@ -71,7 +71,6 @@ pub fn update_element(
     new_node: &VirtualDomNode,
     _old_node: &VirtualDomNode,
 ) {
-    // super kul diffing alg
     let _child = create_element_from_node(parent, &new_node);
 }
 
