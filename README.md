@@ -1,14 +1,14 @@
 # Humus Simple Virtual DOM in Rust + WASM
 
-* ~~Changed JS glue code for wasm-bindgen~~
-* ~~Added Attribures~~
-* Add JSX support
+# TO-DO
+
+- Add JSX support
 
 # DOM management
 
 Since WASM can't pass around DOM elements directly, what we need is some sort of system for talking about the DOM we are going to operate on. In this project, whenever DOM is queried or created, we give that piece of DOM an integer ID.
 
-For instance, if we queried the `body` element, we assign that element a number and store that in an dictionary `number -> Element`. Let's assum the number we get for referring to the `body` is 123.  Now whenever we perform DOM operations on the body, say, setting the innerHTML. We can simply call `set_inner_html(123,"hello!")`.
+For instance, if we queried the `body` element, we assign that element a number and store that in an dictionary `number -> Element`. Let's assum the number we get for referring to the `body` is 123. Now whenever we perform DOM operations on the body, say, setting the innerHTML. We can simply call `set_inner_html(123,"hello!")`.
 
 ```rust
 type DomNode = i32;
@@ -16,7 +16,7 @@ type DomNode = i32;
 
 # Virtual DOM
 
-The important thing to remember is that we are trying to do as minimal DOM operations as possible. Manipulating the DOM is incredibly expensive, so if we can find any way of avoiding interactions with it the better.  How virtual DOM accomplishes this is by representing our DOM as a tree of nodes. Then each time we render, we compare the tree of nodes we currently have to the new tree of nodes, and we can determine what real DOM needs to be created,removed, replaced, or modified.
+The important thing to remember is that we are trying to do as minimal DOM operations as possible. Manipulating the DOM is expensive, so if we can find any way of avoiding interactions with it the better. How virtual DOM accomplishes this is by representing our DOM as a tree of nodes. Then each time we render, we compare the tree of nodes we currently have to the new tree of nodes, and we can determine what real DOM needs to be created,removed, replaced, or modified.
 
 In this example i'm making a pretty massive simplification: **this is a virtual DOM for elements with NO attributes or event handlers**
 
@@ -68,7 +68,7 @@ For a simple html:
 
 ```html
 <div>
-    <h1>hello!</h1>
+  <h1>hello!</h1>
 </div>
 ```
 
@@ -142,7 +142,7 @@ vd.render(body, h("div",vec![
 // ONLY h1 and h3's text node should change
 ```
 
-Let's consider what happens on the first rendering.  We have a virtual dom tree with an `Empty` node in it, and some new virtual dom tree coming in that has elements and text. Our tree comparison is simple in this first rendering since we only have all new nodes we need to create real DOM elements for. So let's look how we might create that tree of real DOM. We have three scenerios to handle:
+Let's consider what happens on the first rendering. We have a virtual dom tree with an `Empty` node in it, and some new virtual dom tree coming in that has elements and text. Our tree comparison is simple in this first rendering since we only have all new nodes we need to create real DOM elements for. So let's look how we might create that tree of real DOM. We have three scenerios to handle:
 
 ```rust
 fn create_element_from_node(node:&VirtualDomNode) -> DomNode {
